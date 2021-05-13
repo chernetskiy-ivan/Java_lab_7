@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -41,6 +43,8 @@ public class MainFrame extends JFrame {
     private final JTextField textFieldTo;
     private final JTextArea textAreaIncoming;
     private final JTextArea textAreaOutgoing;
+    private boolean ctrl = false;
+    private boolean enter = false;
 
     public MainFrame() {
         super(FRAME_TITLE);
@@ -74,6 +78,25 @@ public class MainFrame extends JFrame {
                 sendMessage();
             }
         });
+
+        //отслеживание событий клавиатуры
+        textAreaOutgoing.addKeyListener(new KeyAdapter() {
+
+            public void keyPressed(KeyEvent e) {
+                int codeKey = e.getKeyCode();
+                if (codeKey == 10) enter = true;
+                if (codeKey == 17) ctrl = true;
+                //Проверка на возможность отправки по условию
+                if(enter && ctrl) sendMessage();
+            }
+
+            public void keyReleased(KeyEvent e) {
+                int codeKey = e.getKeyCode();
+                if (codeKey == 10) enter = false;
+                if (codeKey == 17) ctrl = false;
+            }
+        });
+
         // Компоновка элементов панели "Сообщение"
         final GroupLayout layout2 = new GroupLayout(messagePanel);
         messagePanel.setLayout(layout2);
