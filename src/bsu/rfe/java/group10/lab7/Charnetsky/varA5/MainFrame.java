@@ -2,10 +2,7 @@ package bsu.rfe.java.group10.lab7.Charnetsky.varA5;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,6 +42,7 @@ public class MainFrame extends JFrame {
     private final JTextArea textAreaOutgoing;
     private boolean ctrl = false;
     private boolean enter = false;
+    private boolean cursor = false;
 
     public MainFrame() {
         super(FRAME_TITLE);
@@ -87,13 +85,27 @@ public class MainFrame extends JFrame {
                 if (codeKey == 10) enter = true;
                 if (codeKey == 17) ctrl = true;
                 //Проверка на возможность отправки по условию
-                if(enter && ctrl) sendMessage();
+                if(enter && ctrl && cursor) sendMessage();
             }
 
             public void keyReleased(KeyEvent e) {
                 int codeKey = e.getKeyCode();
                 if (codeKey == 10) enter = false;
                 if (codeKey == 17) ctrl = false;
+            }
+        });
+
+        //отслеживание курсора в текстовом поле
+        textAreaOutgoing.addMouseListener(new MouseAdapter() {
+            //метод определяющий попадание курсора в компонент
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                cursor = true;
+            }
+            //метод определяющий выход курсора из компонента
+            @Override
+            public void mouseExited(MouseEvent e) {
+                cursor = false;
             }
         });
 
