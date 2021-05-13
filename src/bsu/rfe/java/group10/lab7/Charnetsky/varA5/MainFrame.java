@@ -154,8 +154,9 @@ public class MainFrame extends JFrame {
                         final String senderName = in.readUTF();
                         // Читаем сообщение
                         final String message = in.readUTF();
-                        //Читаем дату
-                        final String messageDate = in.readUTF();
+                        //исправил: указываю Дату ПОЛУЧЕНИЯ сообжения
+                        Date date = new Date();
+                        String messageDate = date.toString();
                         // Закрываем соединение
                         socket.close();
                         // Выделяем IP-адрес
@@ -164,7 +165,7 @@ public class MainFrame extends JFrame {
                                         .getAddress()
                                         .getHostAddress();
                         // Выводим сообщение в текстовую область
-                        textAreaIncoming.append(senderName + " (" + address + "): " + message + "(Дата потравки сообщения: " + messageDate + " )" + "\n");
+                        textAreaIncoming.append(senderName + " (" + address + "): " + message + "(Дата получения сообщения: " + messageDate + " )" + "\n");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -180,10 +181,6 @@ public class MainFrame extends JFrame {
             final String senderName = textFieldFrom.getText();
             final String destinationAddress = textFieldTo.getText();
             final String message = textAreaOutgoing.getText();
-
-            //Добавляем время отправки сообщения
-            Date date = new Date();
-            String ourDate = date.toString();
 
             // Убеждаемся, что поля не пустые
             if (senderName.isEmpty()) {
@@ -206,8 +203,6 @@ public class MainFrame extends JFrame {
             out.writeUTF(senderName);
             // Записываем в поток сообщение
             out.writeUTF(message);
-            //Записываем в поток дату
-            out.writeUTF(ourDate);
             // Закрываем сокет
             socket.close();
             // Помещаем сообщения в текстовую область вывода
