@@ -11,6 +11,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -130,6 +131,8 @@ public class MainFrame extends JFrame {
                         final String senderName = in.readUTF();
                         // Читаем сообщение
                         final String message = in.readUTF();
+                        //Читаем дату
+                        final String messageDate = in.readUTF();
                         // Закрываем соединение
                         socket.close();
                         // Выделяем IP-адрес
@@ -138,7 +141,7 @@ public class MainFrame extends JFrame {
                                         .getAddress()
                                         .getHostAddress();
                         // Выводим сообщение в текстовую область
-                        textAreaIncoming.append(senderName + " (" + address + "): " + message + "\n");
+                        textAreaIncoming.append(senderName + " (" + address + "): " + message + "(Дата потравки сообщения: " + messageDate + " )" + "\n");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -154,6 +157,11 @@ public class MainFrame extends JFrame {
             final String senderName = textFieldFrom.getText();
             final String destinationAddress = textFieldTo.getText();
             final String message = textAreaOutgoing.getText();
+
+            //Добавляем время отправки сообщения
+            Date date = new Date();
+            String ourDate = date.toString();
+
             // Убеждаемся, что поля не пустые
             if (senderName.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Введите имя отправителя", "Ошибка", JOptionPane.ERROR_MESSAGE);
@@ -175,10 +183,12 @@ public class MainFrame extends JFrame {
             out.writeUTF(senderName);
             // Записываем в поток сообщение
             out.writeUTF(message);
+            //Записываем в поток дату
+            out.writeUTF(ourDate);
             // Закрываем сокет
             socket.close();
             // Помещаем сообщения в текстовую область вывода
-            //textAreaIncoming.append("Я -> " + destinationAddress + ": " + message + "\n");
+            textAreaIncoming.append("Я -> " + destinationAddress + ": " + message + "\n");
             // Очищаем текстовую область ввода сообщения
             textAreaOutgoing.setText("");
         } catch (UnknownHostException e) {
