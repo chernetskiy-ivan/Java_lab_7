@@ -2,8 +2,7 @@ package bsu.rfe.java.group10.lab7.Charnetsky.varA5;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -40,6 +40,9 @@ public class MainFrame extends JFrame {
     private final JTextField textFieldTo;
     private final JTextArea textAreaIncoming;
     private final JTextArea textAreaOutgoing;
+    private boolean ctrl = false;
+    private boolean enter = false;
+    private boolean cursor = false;
 
     public MainFrame() {
         super(FRAME_TITLE);
@@ -73,6 +76,39 @@ public class MainFrame extends JFrame {
                 sendMessage();
             }
         });
+
+        //отслеживание событий клавиатуры
+        textAreaOutgoing.addKeyListener(new KeyAdapter() {
+
+            public void keyPressed(KeyEvent e) {
+                int codeKey = e.getKeyCode();
+                if (codeKey == 10) enter = true;
+                if (codeKey == 17) ctrl = true;
+                //Проверка на возможность отправки по условию
+                if(enter && ctrl && cursor) sendMessage();
+            }
+
+            public void keyReleased(KeyEvent e) {
+                int codeKey = e.getKeyCode();
+                if (codeKey == 10) enter = false;
+                if (codeKey == 17) ctrl = false;
+            }
+        });
+
+        //отслеживание курсора в текстовом поле
+        textAreaOutgoing.addMouseListener(new MouseAdapter() {
+            //метод определяющий попадание курсора в компонент
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                cursor = true;
+            }
+            //метод определяющий выход курсора из компонента
+            @Override
+            public void mouseExited(MouseEvent e) {
+                cursor = false;
+            }
+        });
+
         // Компоновка элементов панели "Сообщение"
         final GroupLayout layout2 = new GroupLayout(messagePanel);
         messagePanel.setLayout(layout2);
@@ -130,6 +166,9 @@ public class MainFrame extends JFrame {
                         final String senderName = in.readUTF();
                         // Читаем сообщение
                         final String message = in.readUTF();
+                        //исправил: указываю Дату ПОЛУЧЕНИЯ сообжения
+                        Date date = new Date();
+                        String messageDate = date.toString();
                         // Закрываем соединение
                         socket.close();
                         // Выделяем IP-адрес
@@ -138,7 +177,7 @@ public class MainFrame extends JFrame {
                                         .getAddress()
                                         .getHostAddress();
                         // Выводим сообщение в текстовую область
-                        textAreaIncoming.append(senderName + " (" + address + "): " + message + "\n");
+                        textAreaIncoming.append(senderName + " (" + address + "): " + message + "(Дата получения сообщения: " + messageDate + " )" + "\n");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -154,6 +193,7 @@ public class MainFrame extends JFrame {
             final String senderName = textFieldFrom.getText();
             final String destinationAddress = textFieldTo.getText();
             final String message = textAreaOutgoing.getText();
+
             // Убеждаемся, что поля не пустые
             if (senderName.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Введите имя отправителя", "Ошибка", JOptionPane.ERROR_MESSAGE);
@@ -178,7 +218,7 @@ public class MainFrame extends JFrame {
             // Закрываем сокет
             socket.close();
             // Помещаем сообщения в текстовую область вывода
-            //textAreaIncoming.append("Я -> " + destinationAddress + ": " + message + "\n");
+            textAreaIncoming.append("Я -> " + destinationAddress + ": " + message + "\n");
             // Очищаем текстовую область ввода сообщения
             textAreaOutgoing.setText("");
         } catch (UnknownHostException e) {
